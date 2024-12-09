@@ -235,8 +235,8 @@ To improve query performance, we carried out the following optimization process:
 - **Initial Query Performance Analysis Using `EXPLAIN`**
     - We began by analyzing the performance of a query using the `EXPLAIN` function.
     - The query retrieved tracks based on the `artist` column, and the performance metrics were as follows:
-        - Execution time (E.T.): **7 ms**
-        - Planning time (P.T.): **0.17 ms**
+        - Execution time (E.T.): **4.88 ms**
+        - Planning time (P.T.): **0.22 ms**
     - Below is the **screenshot** of the `EXPLAIN` result before optimization:
       ![EXPLAIN Before Index](https://github.com/SahiLmb/Spotify-Data-analysis-with-SQL/blob/master/spotify_explain_before_index%201.png)
 
@@ -249,8 +249,8 @@ To improve query performance, we carried out the following optimization process:
 
 - **Performance Analysis After Index Creation**
     - After creating the index, we ran the same query again and observed significant improvements in performance:
-        - Execution time (E.T.): **0.153 ms**
-        - Planning time (P.T.): **0.152 ms**
+        - Execution time (E.T.): **0.087 ms**
+        - Planning time (P.T.): **0.123 ms**
     - Below is the **screenshot** of the `EXPLAIN` result after index creation:
       ![EXPLAIN After Index](https://github.com/SahiLmb/Spotify-Data-analysis-with-SQL/blob/master/spotify_explain_after_index%201.png)
 
