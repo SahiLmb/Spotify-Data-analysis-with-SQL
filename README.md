@@ -1,5 +1,4 @@
-# Spotify Advanced SQL Project and Query Optimization P-6
-Project Category: Advanced
+# Spotify Advanced SQL Project and Query Optimization 
 [Click Here to get Dataset](https://www.kaggle.com/datasets/sanjanchaudhari/spotify-dataset)
 
 ![Spotify Logo](https://github.com/najirh/najirh-Spotify-Data-Analysis-using-SQL/blob/main/spotify_logo.jpg)
@@ -45,9 +44,17 @@ Before diving into SQL, it’s important to understand the dataset thoroughly. T
 - `Track`: The name of the song.
 - `Album`: The album to which the track belongs.
 - `Album_type`: The type of album (e.g., single or album).
-- Various metrics such as `danceability`, `energy`, `loudness`, `tempo`, and more.
+- Various metrics such as `danceability`, `energy`, `loudness`, `tempo`,`views`,`likes`,`comments` and more.
 
-### 4. Querying the Data
+### 2. Basic EDA
+This project involves performing an Exploratory Data Analysis (EDA) on a dataset containing information about Spotify tracks. The objective is to analyze the data, clean it, and extract meaningful insights. Here’s a brief overview of the analysis performed:
+
+#### Key Highlights of the Analysis:
+- Identified tracks with the maximum and minimum duration using SQL queries.
+- Discovered 2 tracks with 0 duration, which were likely data anomalies or errors.
+- Removed the tracks with 0 duration to ensure data integrity and reliability.
+
+### 3. Querying the Data
 After the data is inserted, various SQL queries can be written to explore and analyze the data. Queries are categorized into **easy**, **medium**, and **advanced** levels to help progressively develop SQL proficiency.
 
 #### Easy Queries
@@ -59,7 +66,7 @@ After the data is inserted, various SQL queries can be written to explore and an
 #### Advanced Queries
 - Nested subqueries, window functions, CTEs, and performance optimization.
 
-### 5. Query Optimization
+### 4. Query Optimization
 In advanced stages, the focus shifts to improving query performance. Some optimization strategies include:
 - **Indexing**: Adding indexes on frequently queried columns.
 - **Query Execution Plan**: Using `EXPLAIN ANALYZE` to review and refine query performance.
@@ -70,21 +77,118 @@ In advanced stages, the focus shifts to improving query performance. Some optimi
 
 ### Easy Level
 1. Retrieve the names of all tracks that have more than 1 billion streams.
+```sql
+SELECT * FROM spotify
+	where stream > 1000000000;
+```
 2. List all albums along with their respective artists.
+```sql
+SELECT album,artist from spotify;
+```
 3. Get the total number of comments for tracks where `licensed = TRUE`.
+```sql
+SELECT 
+	SUM(comments) as total_comments
+	from spotify
+	where licensed='TRUE';
+```
 4. Find all tracks that belong to the album type `single`.
+```sql
+SELECT  * from spotify
+	where album_type = 'single';
+```
 5. Count the total number of tracks by each artist.
+```sql
+SELECT 
+   artist,
+   COUNT(*) as total_no_songs
+   from spotify
+   GROUP BY artist
+   ORDER BY 2 ;
+```
 
 ### Medium Level
 1. Calculate the average danceability of tracks in each album.
+```sql
+SELECT 
+	album,
+	avg(danceability) as avg_danceability
+	from spotify
+	group by album
+	order by avg_danceability desc
+```
 2. Find the top 5 tracks with the highest energy values.
+```sql
+Select 
+		 track,
+		 max(energy)
+		 from spotify
+		 group by 1
+		 order by 2 desc
+		 limit 5
+```
 3. List all tracks along with their views and likes where `official_video = TRUE`.
+```sql
+Select track,
+	SUM(views) total_views,
+	SUM(likes) total_likes
+	from spotify
+	where official_video= 'TRUE'
+	group by 1
+	order by 2 desc
+```
 4. For each album, calculate the total views of all associated tracks.
+```sql
+SELECT 
+	album,
+	track,
+	sum(views)
+	from spotify
+	group by 1,2
+	order by 3 desc
+```
 5. Retrieve the track names that have been streamed on Spotify more than YouTube.
+```sql
+SELECT * FROM
+	(SELECT
+	track,
+	COALESCE(SUM(CASE WHEN most_played_on = 'Youtube' THEN stream END),0) as streamed_on_youtube,
+	COALESCE(SUM(CASE WHEN most_played_on = 'Spotify' THEN stream END),0) as streamed_on_spotify	
+	FROM spotify
+	group by 1
+	) as t1
+	WHERE 
+	streamed_on_spotify> streamed_on_youtube
+	AND 
+	streamed_on_youtube<>0
+```
 
 ### Advanced Level
 1. Find the top 3 most-viewed tracks for each artist using window functions.
+```sql
+WITH ranking_artist 
+AS
+	(Select 
+		artist,
+		track,
+		SUM(views) as total_views,
+		DENSE_RANK() OVER(PARTITION BY artist ORDER BY SUM(views) DESC) as rank
+	from spotify
+	GROUP BY 1,2
+	ORDER BY 1,3 DESC
+	)
+SELECT * FROM ranking_artist
+where rank <=3
+```
 2. Write a query to find tracks where the liveness score is above the average.
+```sql
+SELECT 
+	track,
+	artist,
+	liveness
+	from spotify
+	WHERE liveness > (SELECT AVG(liveness) FROM spotify)
+```
 3. **Use a `WITH` clause to calculate the difference between the highest and lowest energy values for tracks in each album.**
 ```sql
 WITH cte
@@ -103,11 +207,24 @@ FROM cte
 ORDER BY 2 DESC
 ```
    
-5. Find tracks where the energy-to-liveness ratio is greater than 1.2.
-6. Calculate the cumulative sum of likes for tracks ordered by the number of views, using window functions.
+4. Find tracks where the energy-to-liveness ratio is greater than 1.2.
+```sql
+SELECT 
+		track,
+		energy/liveness as energy_to_liveness_ratio
+		FROM spotify
+		where energy/liveness > 1.2;
+```
+5. Calculate the cumulative sum of likes for tracks ordered by the number of views, using window functions.
+```sql
+SELECT 
+	track,
+	SUM(likes) OVER(ORDER BY views) as cumulative_sum
+	from spotify
+	order by 2 desc;
 
-
-Here’s an updated section for your **Spotify Advanced SQL Project and Query Optimization** README, focusing on the query optimization task you performed. You can include the specific screenshots and graphs as described.
+	SELECT * from spotify
+```
 
 ---
 
